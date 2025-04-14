@@ -9,24 +9,9 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error, r2_score
-from preprocess import download_stock_data
+from preprocess import download_stock_data,prepare_lstm_data
 
-def prepare_lstm_data(data, forecast_days, window_size=60):
-    df = data[['Close']].copy()
-    scaler = MinMaxScaler()
-    scaled_data = scaler.fit_transform(df)
 
-    X, y = [], []
-    for i in range(window_size, len(scaled_data) - forecast_days):
-        X.append(scaled_data[i - window_size:i, 0])
-        y.append(scaled_data[i + forecast_days - 1, 0])
-
-    X, y = np.array(X), np.array(y)
-    X = X.reshape((X.shape[0], X.shape[1], 1))
-
-    X_forecast = scaled_data[-window_size:].reshape(1, window_size, 1)
-
-    return X, y, X_forecast, scaler
 
 def build_lstm_model(input_shape):
     model = Sequential()

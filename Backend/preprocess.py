@@ -3,32 +3,28 @@
 
 import yfinance as yf
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 def download_stock_data(symbol: str, start_date, end_date):
     # Download historical stock data from Yahoo Finance
+    symbol = symbol.upper()
     df = yf.download(symbol, start=start_date, end=end_date, progress=False)
     return df
 
-def prepare_dataset(df: pd.DataFrame, forecast_days: int):
-    # Use only the 'Close' column
+def prepare_lstm_data(df: pd.DataFrame, forecast_days: int, window_size=60):
+    # Scale the 'Close' price and prepare the data for LSTM
     df = df[['Close']].copy()
-    # Shift closing prices to create the target
-    df['Target'] = df['Close'].shift(-forecast_days)
-    # Drop rows with NaN values
-    df.dropna(inplace=True)
+    scaler = MinMaxScaler()
+    scaled_data = scaler.fit_transform(df)
 
-    # Features and target
-    X = df[['Close']].values
-    y = df['Target'].values
+    X, y = [], []
+    for i in range(window_size, len(scaled_data) - forecast_days):
+        X.append(scaled_data[i - window_size:i, 0])
+        y.append(scaled_data[i + forecast_days - 1, 0])
 
-    # Scale the features
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    X, y = np.array(X), np.array(y)
+    X = X.reshape((X.shape[0], X.shape[1], 1))
 
-    # Data for forecasting
-    X_forecast = X_scaled[-forecast_days:]
-    X_scaled = X_scaled[:-forecast_days]
-    y = y[:-forecast_days]
+    X_forecast = scaled_data[-window_size:].reshape(1, window_size, 1)
 
-    return X_scaled, y, X_forecast, scaler
+    return X, y, X_forecast, scaler
