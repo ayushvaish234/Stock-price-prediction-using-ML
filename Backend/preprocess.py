@@ -7,6 +7,7 @@ from sklearn.preprocessing import StandardScaler
 
 def download_stock_data(symbol: str, start_date, end_date):
     # Download historical stock data from Yahoo Finance
+    symbol = symbol.upper()
     df = yf.download(symbol, start=start_date, end=end_date, progress=False)
     return df
 
