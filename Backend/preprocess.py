@@ -3,6 +3,7 @@
 
 import yfinance as yf
 import pandas as pd
+import numpy as np
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 def download_stock_data(symbol: str, start_date, end_date):

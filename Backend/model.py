@@ -2,9 +2,6 @@
 #Roll no : 230231017
 
 import numpy as np
-import sys
-import json
-from datetime import datetime
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM
 from sklearn.preprocessing import MinMaxScaler
@@ -30,8 +27,11 @@ def train_and_forecast_lstm(df, forecast_days=1):
     model.fit(X_train, y_train, epochs=20, batch_size=32, verbose=0)
 
     predictions = model.predict(X_test).flatten()
-    r2 = r2_score(y_test, predictions)
     mae = mean_absolute_error(y_test, predictions)
+    
+    print("MEAN Absolute Error:",mae)
+    accuracy = 1 - (mae / max(y_test))
+    print("Estimated Accuracy:", f'{accuracy:.2f}')
 
     forecast_scaled = model.predict(X_forecast)
     forecast = scaler.inverse_transform(forecast_scaled.reshape(-1, 1)).flatten()
@@ -39,19 +39,19 @@ def train_and_forecast_lstm(df, forecast_days=1):
 
     return forecast, current_price
 
-if __name__ == "__main__":
-    symbol = sys.argv[1]
-    start = datetime.strptime(sys.argv[2], "%Y-%m-%d").date()
-    end = datetime.strptime(sys.argv[3], "%Y-%m-%d").date()
-    forecast_days = int(sys.argv[4])
+# if __name__ == "__main__":
+#     symbol = sys.argv[1]
+#     start = datetime.strptime(sys.argv[2], "%Y-%m-%d").date()
+#     end = datetime.strptime(sys.argv[3], "%Y-%m-%d").date()
+#     forecast_days = int(sys.argv[4])
 
-    df = download_stock_data(symbol, start, end)
-    forecast, current_price = train_and_forecast_lstm(df, forecast_days)
+#     df = download_stock_data(symbol, start, end)
+#     forecast, current_price = train_and_forecast_lstm(df, forecast_days)
 
-    output = {
-        "symbol": symbol,
-        "current_price": round(float(current_price), 2),
-        "forecast": [round(float(p), 2) for p in forecast]
-    }
+#     output = {
+#         "symbol": symbol,
+#         "current_price": round(float(current_price), 2),
+#         "forecast": [round(float(p), 2) for p in forecast]
+#     }
 
-    print(json.dumps(output))
+#     print(json.dumps(output))
