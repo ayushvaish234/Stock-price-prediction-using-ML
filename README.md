@@ -4,30 +4,30 @@ This web app predicts future stock prices using machine learning. It fetches rea
 
 It generates graphs to evaluate model performance, providing further in-depth analysis.
 
-## Libraries used:
+## Libraries:
 
-##### Frontend:
-    - React
-    - TailwindCSS
+### For frontend:
+- React
+- TailwindCSS
 
-##### Backend:
-    - Flask
-    - pandas
-    - numpy
-    - scikit-learn
-    - matplotlib
-    - tensorflow
-    - preprocess
-    - xgboost
-    - yfinance
+### For backend:
+- Flask
+- pandas
+- numpy
+- scikit-learn
+- matplotlib
+- tensorflow
+- preprocess
+- xgboost
+- yfinance
 
 ## To run locally,
 
-    - Clone the repo, install the Python libraries for the backend, and run:
+- Clone the repo, install the Python libraries for the backend, and run:
     ```
     cd frontend && npm install
     npm run dev
     cd backend && python3 app.py
     ```
-    - App starts on http://localhost:5173 .
+- App starts on http://localhost:5173 .
 
