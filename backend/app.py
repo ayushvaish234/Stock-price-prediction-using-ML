@@ -29,7 +29,8 @@ def predict():
         print("End date:", end_date)  # Debugging line
         start_date = end_date - timedelta(days=365 * 2)  # 2 years data
 
-        df = download_stock_data(symbol, start_date, end_date)
+        df = download_stock_data(symbol.upper(), start_date, end_date)
+
 
         if df.empty:
             return jsonify({'error': 'No data found for this symbol'}), 404
@@ -40,6 +41,20 @@ def predict():
         # Call the XGBoost model function
         _, forecast_xgboost, graph_paths_xgboost = train_and_forecast_xgboost(df, forecast_days)
 
+        lstm_weight = 0.7
+        xgboost_weight = 0.3
+
+          # Combine forecast values using a weighted average
+        weighted_forecast = []
+        for i in range(len(forecast_lstm)):
+            date = forecast_lstm[i]['date']
+            lstm_value = float(forecast_lstm[i]['value'])
+            xgboost_value = float(forecast_xgboost[i]['value'])
+
+            # Calculate the weighted average
+            combined_value = (lstm_weight * lstm_value) + (xgboost_weight * xgboost_value)
+            weighted_forecast.append({"date": date, "value": round(combined_value, 2)})
+        
         # Ensure all values in forecasts are JSON serializable
         forecast_lstm = [{"date": item["date"], "value": round(float(item["value"]), 2)} for item in forecast_lstm]
         forecast_xgboost = [{"date": item["date"], "value": round(float(item["value"]), 2)} for item in forecast_xgboost]
@@ -54,6 +69,10 @@ def predict():
             'xgboost': {
                 "forecast": forecast_xgboost,
                 'graphs': graph_paths_xgboost  # Include XGBoost graph paths
+            },
+            'combined_forecast': {
+                "forecast": weighted_forecast,
+                'columns': ['Date', 'Predicted Price']  # Added column headers for weighted forecast
             }
         }
 
