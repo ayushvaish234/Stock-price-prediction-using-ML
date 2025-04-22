@@ -11,6 +11,7 @@ function App() {
   const [currentPrice, setCurrentPrice] = useState('');
   const [forecastLSTM, setForecastLSTM] = useState([]); // Forecast by LSTM
   const [forecastXGBoost, setForecastXGBoost] = useState([]); // Forecast by XGBoost
+  const [forecastCombined, setForecastCombined] = useState([]);
   const [graphsLSTM, setGraphsLSTM] = useState({}); // Graphs for LSTM
   const [graphsXGBoost, setGraphsXGBoost] = useState({}); // Graphs for XGBoost
   const [loading, setLoading] = useState(false);
@@ -36,11 +37,12 @@ function App() {
         setForecastXGBoost([]); // Clear XGBoost forecast
         setGraphsLSTM({}); // Clear LSTM graphs
         setGraphsXGBoost({}); // Clear XGBoost graphs
+
       } else {
         setCurrentPrice(`Current Stock Price: ${data.current_price}`);
         setForecastLSTM(data.lstm.forecast); // Set LSTM forecast
         setForecastXGBoost(data.xgboost.forecast); // Set XGBoost forecast
-
+        setForecastCombined(data.combined_forecast.forecast);
         // Append a timestamp to graph URLs to prevent caching
         const timestamp = new Date().getTime();
         setGraphsLSTM({
@@ -118,7 +120,7 @@ function App() {
       )}
 
       {/* Display forecasted prices in a table */}
-      {forecastLSTM.length > 0 && forecastXGBoost.length > 0 && !error && (
+      {forecastLSTM.length > 0 && forecastXGBoost.length > 0 && forecastCombined.length > 0  && !error && (
         <div className="mt-6 w-full max-w-4xl">
           <h3 className="text-lg font-semibold mb-4 text-center">Forecasted Stock Prices for next {forecastDays} days</h3>
           <table className="w-full bg-white rounded-lg shadow-md overflow-hidden">
@@ -127,6 +129,7 @@ function App() {
                 <th className="px-4 py-2 text-left border-r border-gray-600">Date</th>
                 <th className="px-4 py-2 text-left border-r border-gray-600">Forecast by LSTM</th>
                 <th className="px-4 py-2 text-left">Forecast by XGBoost</th>
+                <th className="px-4 py-2 text-left">Final Forecast</th>
               </tr>
             </thead>
             <tbody>
@@ -135,6 +138,7 @@ function App() {
                   <td className="px-4 py-2 border-r border-gray-600">{item.date.split(' ')[0]}</td>
                   <td className="px-4 py-2 border-r border-gray-600">{item.value}</td>
                   <td className="px-4 py-2">{forecastXGBoost[index]?.value}</td>
+                  <td className="px-4 py-2">{forecastCombined[index]?.value}</td>
                 </tr>
               ))}
             </tbody>
