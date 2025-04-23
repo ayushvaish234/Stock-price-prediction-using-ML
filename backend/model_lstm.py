@@ -1,14 +1,11 @@
-'''
-Author: Ayush Vaish
-Roll no: 230231017
-'''
-
 import pandas as pd
 import numpy as np
 import sys
 import json
 import os
 from datetime import datetime
+import matplotlib
+matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM, Input
@@ -179,20 +176,20 @@ def generate_graphs(y_test_dates, y_test, predictions, forecast, history, scaler
     plt.close()
 
 
-if __name__ == "__main__":
-    symbol = sys.argv[1]
-    start = datetime.strptime(sys.argv[2], "%Y-%m-%d").date()
-    end = datetime.strptime(sys.argv[3], "%Y-%m-%d").date()
-    forecast_days = int(sys.argv[4])
+# if __name__ == "__main__":
+#     symbol = sys.argv[1]
+#     start = datetime.strptime(sys.argv[2], "%Y-%m-%d").date()
+#     end = datetime.strptime(sys.argv[3], "%Y-%m-%d").date()
+#     forecast_days = int(sys.argv[4])
 
-    df = download_stock_data(symbol, start, end)
-    current_price, forecast, graph_paths = train_and_forecast_lstm(df, forecast_days)
+#     df = download_stock_data(symbol, start, end)
+#     current_price, forecast, graph_paths = train_and_forecast_lstm(df, forecast_days)
 
-    output = {
-        "symbol": symbol,
-        "current_price": round(float(current_price), 2),
-        "forecast": forecast,
-        "graphs": graph_paths
-    }
+#     output = {
+#         "symbol": symbol,
+#         "current_price": round(float(current_price), 2),
+#         "forecast": forecast,
+#         "graphs": graph_paths
+#     }
 
-    print(json.dumps(output))
+#     print(json.dumps(output))

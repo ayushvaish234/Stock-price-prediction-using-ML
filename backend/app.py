@@ -1,8 +1,3 @@
-'''
-Author: Sudhanshu Tiwari
-Roll no: 230231060
-'''
-
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from datetime import datetime, timedelta
@@ -14,6 +9,39 @@ import os
 app = Flask(__name__)
 CORS(app)  # Allow all origins by default
 
+import yfinance as yf
+
+import yfinance as yf
+
+@app.route('/stock-info', methods=['POST'])
+def stock_info():
+    data = request.get_json()
+    symbol = data.get('symbol')
+
+    if not symbol:
+        return jsonify({'error': 'Stock symbol is required'}), 400
+
+    try:
+        # Fetch stock information using yfinance
+        ticker = yf.Ticker(symbol)
+        info = ticker.info
+
+        # Extract relevant fields
+        stock_info = {
+            'name': info.get('longName', 'N/A'),
+            'symbol': info.get('symbol', 'N/A'),
+            'exchange': info.get('exchange', 'N/A'),
+            'sector': info.get('sector', 'N/A'),
+            'industry': info.get('industry', 'N/A'),
+            'marketCap': info.get('marketCap', 'N/A'),
+            'about': info.get('longBusinessSummary', 'N/A'),  # About Company
+            'peRatio': info.get('trailingPE', 'N/A'),  # P/E Ratio
+            'allTimeHigh': info.get('fiftyTwoWeekHigh', 'N/A'),  # All-Time High
+            'allTimeLow': info.get('fiftyTwoWeekLow', 'N/A'),  # All-Time Low
+        }
+        return jsonify(stock_info)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/predict', methods=['POST'])
 def predict():

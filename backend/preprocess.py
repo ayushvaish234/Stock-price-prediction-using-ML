@@ -1,8 +1,3 @@
-'''
-Author : Anil kachhap 
-Roll no : 230231011
-'''
-
 import numpy as np
 import yfinance as yf
 import pandas as pd
