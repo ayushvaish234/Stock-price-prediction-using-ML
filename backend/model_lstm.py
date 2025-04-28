@@ -7,24 +7,12 @@ from datetime import datetime
 import matplotlib
 matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
+from utils import delete_existing_file, ensure_directory_exists
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM, Input
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error, r2_score
-from preprocess import download_stock_data, prepare_lstm_data
-
-
-def delete_existing_file(file_path):
-    """Delete the file if it already exists."""
-    if os.path.exists(file_path):
-        os.remove(file_path)
-
-
-def ensure_directory_exists(directory):
-    """Ensure that the specified directory exists. Create it if it doesn't."""
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
+from preprocess import download_stock_data, prepare_data
 
 def build_lstm_model(input_shape, forecast_days):
     """Build and compile the LSTM model."""
@@ -44,7 +32,7 @@ def train_and_forecast_lstm(df, forecast_days):
     ensure_directory_exists(graphs_dir)
 
     # Prepare data
-    X, y, X_forecast, scaler, y_dates = prepare_lstm_data(df, forecast_days)
+    X, y, X_forecast, scaler, y_dates = prepare_data(df, forecast_days)
 
     # Ensure y has the correct shape for multi-step forecasting
     y = np.array([y[i:i + forecast_days] for i in range(len(y) - forecast_days + 1)])
@@ -95,7 +83,7 @@ def train_and_forecast_lstm(df, forecast_days):
 
 
     # Return forecast, current price, and paths to the generated graphs
-    return current_price, forecast, {
+    return current_price, forecast, predictions, y_test_dates, scaler, {
         "actual_vs_predicted_lstm": "actual_vs_predicted_lstm.png",
         "forecasted_prices_lstm": "forecasted_prices_lstm.png",
         "training_vs_validation_loss_lstm": "training_vs_validation_loss_lstm.png",
@@ -168,7 +156,7 @@ def generate_graphs(y_test_dates, y_test, predictions, forecast, history, scaler
     residuals_histogram_path = os.path.join(graphs_dir, "residuals_histogram_lstm.png")
     delete_existing_file(residuals_histogram_path)
     plt.figure(figsize=(10, 6))
-    plt.hist(residuals, bins=20, color="gray", edgecolor="black")
+    plt.hist(residuals, bins=20, color="darkorchid", edgecolor="black")
     plt.title("Residuals (Actual - Predicted)")
     plt.xlabel("Residual Value")
     plt.ylabel("Frequency")

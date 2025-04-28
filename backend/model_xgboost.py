@@ -8,22 +8,10 @@ import matplotlib
 matplotlib.use('Agg')  
 import matplotlib.pyplot as plt
 from xgboost import XGBRegressor
+from utils import delete_existing_file, ensure_directory_exists
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error, r2_score
-from preprocess import download_stock_data, prepare_lstm_data
-
-
-def delete_existing_file(file_path):
-    """Delete the file if it already exists."""
-    if os.path.exists(file_path):
-        os.remove(file_path)
-
-
-def ensure_directory_exists(directory):
-    """Ensure that the specified directory exists. Create it if it doesn't."""
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
+from preprocess import download_stock_data, prepare_data
 
 def build_xgboost_model():
     """Build and compile the XGBoost model."""
@@ -45,7 +33,7 @@ def train_and_forecast_xgboost(df, forecast_days):
     ensure_directory_exists(graphs_dir)
 
     # Prepare data
-    X, y, X_forecast, scaler, y_dates = prepare_lstm_data(df, forecast_days)
+    X, y, X_forecast, scaler, y_dates = prepare_data(df, forecast_days)
 
     # Reshape X and y into 2-dimensional matrices
     X = X.reshape(X.shape[0], -1)  # Reshape X to (samples, features)
@@ -94,7 +82,7 @@ def train_and_forecast_xgboost(df, forecast_days):
     generate_graphs(y_test_dates, y_test, predictions, forecast, None, scaler, graphs_dir)
     forecast = [{"date": str(date), "value": round(float(value), 2)} for date, value in forecast]
 
-    return current_price, forecast, {
+    return current_price, forecast, predictions, y_test, {
         "actual_vs_predicted_xgboost": "actual_vs_predicted_xgboost.png",
         "forecasted_prices_xgboost": "forecasted_prices_xgboost.png",
         "training_vs_validation_loss_xgboost": "training_vs_validation_loss_xgboost.png",
@@ -153,7 +141,7 @@ def generate_graphs(y_test_dates, y_test, predictions, forecast, history, scaler
     residuals_histogram_path = os.path.join(graphs_dir, "residuals_histogram_xgboost.png")
     delete_existing_file(residuals_histogram_path)
     plt.figure(figsize=(10, 6))
-    plt.hist(residuals, bins=20, color="gray", edgecolor="black")
+    plt.hist(residuals, bins=20, color="darkorchid", edgecolor="black")
     plt.title("Residuals (Actual - Predicted)")
     plt.xlabel("Residual Value")
     plt.ylabel("Frequency")

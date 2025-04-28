@@ -9,7 +9,7 @@ def download_stock_data(symbol: str, start_date, end_date):
     df = yf.download(symbol, start=start_date, end=end_date, progress=False)
     return df
 
-def prepare_lstm_data(df: pd.DataFrame, forecast_days: int = 7, window_size=60):
+def prepare_data(df: pd.DataFrame, forecast_days: int = 7, window_size=60):
     # Scale the 'Close' price and prepare the data for LSTM
     df = df[['Close']].copy()
     scaler = MinMaxScaler()
