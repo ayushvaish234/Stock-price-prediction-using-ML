@@ -13,6 +13,7 @@ import pandas as pd
 
 app = Flask(__name__)
 CORS(app)  # Allow all origins by default
+from utils import delete_existing_file, ensure_directory_exists
 
 def generate_weighted_test_graphs(y_test_dates, y_test, predictions_lstm, predictions_xgboost, weighted_forecast, forecast_lstm, forecast_xgboost, weights, scaler, graphs_dir):
     """Generate graphs for weighted predictions using test data."""
@@ -134,8 +135,8 @@ def predict():
         # Call the XGBoost model function
         _, forecast_xgboost, predictions_xgboost, y_test, graph_paths_xgboost = train_and_forecast_xgboost(df, forecast_days)
 
-        lstm_weight = 0.7
-        xgboost_weight = 0.3
+        lstm_weight = 0.5
+        xgboost_weight = 0.5
         weights = {"lstm": lstm_weight, "xgboost": xgboost_weight}
 
 
